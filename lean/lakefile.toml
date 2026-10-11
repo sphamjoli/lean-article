@@ -1,0 +1,7 @@
+name = "Collection"
+version = "0.1.0"
+defaultTargets = ["Collection"]
+
+[[lean_lib]]
+name = "Collection"
+moreLeanArgs = ["-DwarningAsError=true"]

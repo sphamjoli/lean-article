@@ -1,0 +1,12 @@
+.git
+.claude
+.codex
+.agents
+node_modules
+target
+lean/.lake
+**/AGENTS.md
+**/DESIGN.md
+**/TESTING.md
+**/.DS_Store
+.env*

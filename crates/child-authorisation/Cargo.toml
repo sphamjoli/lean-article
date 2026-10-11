@@ -1,0 +1,13 @@
+[package]
+name = "child-authorisation"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+publish.workspace = true
+
+[lints]
+workspace = true
+
+[dependencies]
+collection-types = { path = "../collection-types" }
+collection-details = { path = "../collection-details" }

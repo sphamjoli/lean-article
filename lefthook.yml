@@ -1,0 +1,28 @@
+pre-commit:
+  parallel: true
+  jobs:
+    - name: source and documentation style
+      run: bash scripts/run-tool.sh python3 scripts/check-style.py --staged
+    - name: TOML and JSON validation
+      glob: "*.{toml,json}"
+      run: bash scripts/run-tool.sh python3 scripts/check-config.py --staged
+    - name: YAML validation
+      glob: "*.{yml,yaml}"
+      run: bash scripts/run-tool.sh ruby scripts/check-yaml.rb
+    - name: shell validation
+      glob: "*.{sh,bash}"
+      run: bash scripts/check-shell.sh
+    - name: Rust formatting and lint
+      glob: "*.{rs,toml}"
+      run: bash scripts/run-tool.sh make rust-lint
+    - name: Lean proof and axiom audit
+      glob: "*.{lean,py,sh,toml}"
+      run: bash scripts/run-tool.sh make lean-check
+commit-msg:
+  jobs:
+    - name: conventional commit message
+      run: bash scripts/run-tool.sh python3 scripts/check-commit.py {1}
+pre-push:
+  jobs:
+    - name: complete verification
+      run: bash scripts/run-tool.sh make check
