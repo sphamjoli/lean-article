@@ -2,21 +2,21 @@
 set -euo pipefail
 cd "$(dirname "$0")/../lean"
 python3 ../scripts/audit-project.py
-for fixture in audit-fixtures/*.lean; do
+for test_file in test/*.lean; do
   output="$(mktemp)"
-  if lake env lean -DwarningAsError=true "$fixture" >"$output" 2>&1; then
+  if lake env lean -DwarningAsError=true "$test_file" >"$output" 2>&1; then
     cat "$output"
     rm -f "$output"
-    echo "Forbidden-axiom fixture unexpectedly passed: $fixture" >&2
+    echo "Forbidden-axiom test_file unexpectedly passed: $test_file" >&2
     exit 1
   fi
   if ! grep -q 'Forbidden axiom dependency:' "$output" ||
       ! grep -q 'Project axiom audit failed' "$output"; then
     cat "$output"
     rm -f "$output"
-    echo "Fixture failed for a reason other than the axiom audit" >&2
+    echo "Negative test failed for a reason other than the axiom audit" >&2
     exit 1
   fi
   rm -f "$output"
-  echo "Rejected forbidden-axiom fixture: $fixture"
+  echo "Rejected forbidden-axiom test_file: $test_file"
 done
