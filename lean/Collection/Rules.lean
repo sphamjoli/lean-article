@@ -35,7 +35,7 @@ def acceptsAuthorised (s : SchoolState) (r : Request) (a : Approval) : Bool :=
 
 def ActualAuthority := Nat → Nat → Prop
 
-def Requirement (actual : ActualAuthority) (s : SchoolState) (r : Request)
+def SuppliedInputRequirement (actual : ActualAuthority) (s : SchoolState) (r : Request)
     (a : Approval) : Prop :=
   Details s r a ∧ actual a.approver r.child
 
@@ -49,8 +49,20 @@ theorem authorised_characterisation (s : SchoolState) (r : Request) (a : Approva
 
 theorem authorised_meets_requirement (s : SchoolState) (r : Request) (a : Approval)
     (actual : ActualAuthority) (accepted : acceptsAuthorised s r a = true)
-    (faithful : RecordsFaithful s actual) : Requirement actual s r a := by
+    (faithful : RecordsFaithful s actual) : SuppliedInputRequirement actual s r a := by
   obtain ⟨details, recorded⟩ := (authorised_characterisation s r a).mp accepted
   exact ⟨details, faithful a.approver r.child recorded⟩
+
+-- A teaching wrapper outside the acceptance API; this is not authentication.
+structure Submission where
+  submitter : Nat
+  approval : Approval
+
+def acceptsSubmission (s : SchoolState) (r : Request) (submission : Submission) : Bool :=
+  acceptsAuthorised s r submission.approval
+
+theorem submission_ignores_submitter (s : SchoolState) (r : Request) (a : Approval)
+    (first second : Nat) :
+    acceptsSubmission s r ⟨first, a⟩ = acceptsSubmission s r ⟨second, a⟩ := rfl
 
 end Collection

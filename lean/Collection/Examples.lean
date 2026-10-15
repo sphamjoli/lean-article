@@ -11,8 +11,8 @@ def badRecords : SchoolState := { school with recordedAuthorisations := [(1, 10)
 
 theorem eve_passes_details : acceptsDetails school request eveApproval = true := by decide
 
-theorem eve_violates_requirement : ¬ Requirement actual school request eveApproval := by
-  simp [Requirement, Details, actual, school, request, eveApproval]
+theorem eve_violates_requirement : ¬ SuppliedInputRequirement actual school request eveApproval := by
+  simp [SuppliedInputRequirement, Details, actual, school, request, eveApproval]
 
 theorem eve_rejected_by_authorisation : acceptsAuthorised school request eveApproval = false := by decide
 
@@ -23,8 +23,8 @@ theorem good_records_faithful : RecordsFaithful school actual := by
 
 theorem eve_passes_bad_records : acceptsAuthorised badRecords request eveApproval = true := by decide
 
-theorem eve_still_violates_requirement : ¬ Requirement actual badRecords request eveApproval := by
-  simp [Requirement, Details, actual, badRecords, school, request, eveApproval]
+theorem eve_still_violates_requirement : ¬ SuppliedInputRequirement actual badRecords request eveApproval := by
+  simp [SuppliedInputRequirement, Details, actual, badRecords, school, request, eveApproval]
 
 theorem bad_records_not_faithful : ¬ RecordsFaithful badRecords actual := by
   intro faithful
@@ -36,8 +36,19 @@ def aliceApproval : Approval := { eveApproval with approver := 1 }
 
 theorem alice_accepted : acceptsAuthorised aliceSchool request aliceApproval = true := by decide
 
-theorem alice_meets_requirement : Requirement actual aliceSchool request aliceApproval := by
+theorem alice_meets_requirement : SuppliedInputRequirement actual aliceSchool request aliceApproval := by
   apply authorised_meets_requirement aliceSchool request aliceApproval actual alice_accepted
   exact good_records_faithful
+
+def eveSubmittingAliceApproval : Submission := ⟨2, aliceApproval⟩
+
+theorem different_submitter_accepted :
+    acceptsSubmission aliceSchool request eveSubmittingAliceApproval = true ∧
+    eveSubmittingAliceApproval.submitter ≠ eveSubmittingAliceApproval.approval.approver := by
+  decide
+
+theorem supplied_requirement_does_not_establish_provenance :
+    SuppliedInputRequirement actual aliceSchool request eveSubmittingAliceApproval.approval :=
+  alice_meets_requirement
 
 end Collection

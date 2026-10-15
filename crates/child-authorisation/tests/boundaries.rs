@@ -131,3 +131,36 @@ fn another_signed_in_parent_does_not_authenticate_the_approver() {
     assert!(!collection_details::accepts(&state, &request, &approval));
     assert!(!child_authorisation::accepts(&state, &request, &approval));
 }
+
+// This teaching wrapper sits outside the acceptance API and authenticates nobody.
+struct Submission {
+    submitter: AccountId,
+    approval: Approval,
+}
+
+fn accepts_submission(state: &SchoolState, request: &Request, submission: &Submission) -> bool {
+    child_authorisation::accepts(state, request, &submission.approval)
+}
+
+#[test]
+fn acceptance_cannot_establish_who_supplied_the_approval() {
+    let Fixture {
+        mut state,
+        request,
+        mut approval,
+    } = fixture();
+    state.signed_in_parents = vec![AccountId(1)];
+    approval.approver = AccountId(1);
+    let mut submission = Submission {
+        submitter: AccountId(2),
+        approval,
+    };
+    assert_ne!(submission.submitter, submission.approval.approver);
+    assert!(accepts_submission(&state, &request, &submission));
+    let first_result = accepts_submission(&state, &request, &submission);
+    submission.submitter = AccountId(1);
+    assert_eq!(
+        first_result,
+        accepts_submission(&state, &request, &submission)
+    );
+}
