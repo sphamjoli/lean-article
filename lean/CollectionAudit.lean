@@ -1,5 +1,6 @@
 import Lean
 import Lean.Compiler.ImplementedByAttr
+import Lean.Compiler.IR.CompilerM
 open Lean Elab Command
 
 private def projectModule (name : Name) : Bool :=
@@ -16,6 +17,14 @@ elab "#audit_collection" : command => do
       | none => true
     if owned then
       count := count + 1
+      if let .axiomInfo _ := info then
+        let compilerEntry :=
+          (IR.findEnvDecl env name).isSome
+        let sourceDeclaration := (← findDeclarationRangesCore? name).isSome
+        unless info.isUnsafe && compilerEntry && !sourceDeclaration do
+          logError m!"Forbidden axiom dependency: explicit project axiom {name}"
+          failed := true
+          continue
       if info.isUnsafe then
         logInfo m!"Execution-only unsafe declaration for review: {name}"
         continue

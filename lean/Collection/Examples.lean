@@ -48,8 +48,9 @@ theorem different_submitter_accepted :
   decide
 
 theorem supplied_requirement_does_not_establish_provenance :
-    SuppliedInputRequirement actual aliceSchool request eveSubmittingAliceApproval.approval :=
-  alice_meets_requirement
+    SuppliedInputRequirement actual aliceSchool request eveSubmittingAliceApproval.approval ∧
+    eveSubmittingAliceApproval.submitter ≠ eveSubmittingAliceApproval.approval.approver := by
+  exact ⟨alice_meets_requirement, different_submitter_accepted.2⟩
 
 theorem good_records_complete : RecordsComplete school actual := by
   intro account child permission
@@ -59,6 +60,7 @@ theorem alice_accepted_from_requirement :
     acceptsAuthorised aliceSchool request aliceApproval = true := by
   apply supplied_requirement_accepted aliceSchool request aliceApproval actual
   · exact good_records_complete
-  · exact alice_meets_requirement
+  · simp [SuppliedInputRequirement, Details, actual, aliceSchool, school,
+          aliceApproval, eveApproval, request]
 
 end Collection
