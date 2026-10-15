@@ -53,6 +53,16 @@ theorem authorised_meets_requirement (s : SchoolState) (r : Request) (a : Approv
   obtain ⟨details, recorded⟩ := (authorised_characterisation s r a).mp accepted
   exact ⟨details, faithful a.approver r.child recorded⟩
 
+-- Completeness is a separate assumption from the absence of false permissions.
+def RecordsComplete (s : SchoolState) (actual : ActualAuthority) : Prop :=
+  ∀ account child, actual account child → (account, child) ∈ s.recordedAuthorisations
+
+theorem supplied_requirement_accepted (s : SchoolState) (r : Request) (a : Approval)
+    (actual : ActualAuthority) (complete : RecordsComplete s actual)
+    (required : SuppliedInputRequirement actual s r a) : acceptsAuthorised s r a = true := by
+  exact (authorised_characterisation s r a).mpr
+    ⟨required.1, complete a.approver r.child required.2⟩
+
 -- A teaching wrapper outside the acceptance API; this is not authentication.
 structure Submission where
   submitter : Nat
