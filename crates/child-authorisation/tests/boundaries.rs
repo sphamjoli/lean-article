@@ -60,8 +60,8 @@ fn incorrect_records_allow_the_same_request() {
         child: ChildId(10),
     });
     assert!(child_authorisation::accepts(&state, &request, &approval));
-    // Actual school permission remains Alice–Charlie and Eve–another child.
-    let actual = [
+    // Restore the fixture's actual permission records and exercise the checker.
+    state.recorded_authorisations = vec![
         RecordedAuthorisation {
             account: AccountId(1),
             child: ChildId(10),
@@ -71,10 +71,7 @@ fn incorrect_records_allow_the_same_request() {
             child: ChildId(20),
         },
     ];
-    assert!(!actual.contains(&RecordedAuthorisation {
-        account: approval.approver,
-        child: request.child
-    }));
+    assert!(!child_authorisation::accepts(&state, &request, &approval));
 }
 
 #[test]
@@ -117,7 +114,7 @@ fn each_detail_is_required_even_with_recorded_authority() {
 }
 
 #[test]
-fn another_signed_in_parent_does_not_authenticate_the_approver() {
+fn approver_must_be_present_in_the_signed_in_parent_list() {
     let Fixture {
         mut state,
         request,
