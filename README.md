@@ -37,7 +37,7 @@ Run `bash scripts/check.sh` for the combined Rust and Lean checks. Rust 1.97.1 i
 
 The numeric examples use Alice account 1, Eve account 2, Charlie child 10 and another child 20. Day 42 is an opaque example value, not a calendar conversion. The signed-in and permission lists are unbounded supplied inputs; evaluation scans them linearly, allocates no memory and provides no production resource limit.
 
-The axiom audit allows only the standard Lean foundations `propext`, `Classical.choice` and `Quot.sound`; the current proofs use only the first and third. No added axioms or proof placeholders are used.
+The automatic axiom audit visits every declaration in every `Collection` source module, discovered and built from the source tree, including unused axioms and declarations outside the `Collection` namespace. Negative fixtures separately check rejection of unlisted theorems and unused axioms. Compiler-generated and other unsafe execution declarations, opaque declarations and execution overrides are reported for review, rather than rejected. The audit allows only the standard Lean foundations `propext`, `Classical.choice` and `Quot.sound`; the current proofs use only the first and third. No added axioms or proof placeholders are used.
 
 ## Developer commands
 

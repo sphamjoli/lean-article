@@ -5,3 +5,7 @@ defaultTargets = ["Collection"]
 [[lean_lib]]
 name = "Collection"
 moreLeanArgs = ["-DwarningAsError=true"]
+
+[[lean_lib]]
+name = "CollectionAudit"
+moreLeanArgs = ["-DwarningAsError=true"]
