@@ -1,4 +1,4 @@
-# Lean on me? Maybe NOT! — executable examples
+# Lean on me? Maybe NOT!
 
 A school collection request must have approval from a parent or guardian authorised for that particular child. These examples separate checking collection details, checking recorded permission, and justifying that recorded permission reflects actual authority.
 
