@@ -150,6 +150,10 @@ For a smaller check, select a target:
 
 `lake build` inside `lean/` compiles the default library. The standalone `AxiomAudit.lean` inspects imported modules. Use `make lean-check` for discovery and checking of all project modules. The negative tests are expected to be rejected; the command succeeds only when that rejection has the expected cause.
 
+## Continuous integration
+
+[GitHub Actions](https://github.com/sphamjoli/lean-article/actions) runs on pushes to `main` and on pull requests. One job runs `make check` and the example on Ubuntu 24.04 with the pinned Rust and Lean toolchains. A separate job builds the Docker image and runs its checks and example with container networking disabled. The summary succeeds only when both jobs succeed. Superseded runs on the same reference are cancelled.
+
 ## Install Git hooks
 
 For development, install the [Bun version recorded in package.json](https://bun.com/docs/installation), then install the pinned Lefthook dependency and hooks:

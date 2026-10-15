@@ -1,0 +1,74 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  checks:
+    name: Rust, Lean and configuration
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - name: Install system tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends python3 ruby make elan
+      - name: Install pinned toolchains
+        run: |
+          rustup toolchain install 1.97.1 --profile minimal --component rustfmt,clippy
+          elan toolchain install leanprover/lean4:v4.19.0
+      - name: Run complete checks
+        run: make check
+      - name: Run collection example
+        run: make demo
+
+  docker:
+    name: Docker build and offline checks
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - name: Build verification image
+        run: make docker-build
+      - name: Run checks without network access
+        run: make docker-check
+      - name: Run example without network access
+        run: make docker-demo
+
+  summary:
+    name: CI summary
+    if: ${{ always() }}
+    needs: [checks, docker]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - name: Write results
+        env:
+          CHECKS_RESULT: ${{ needs.checks.result }}
+          DOCKER_RESULT: ${{ needs.docker.result }}
+        run: |
+          {
+            echo '## CI results'
+            echo ''
+            echo '| Check | Result |'
+            echo '|---|---|'
+            echo "| Rust, Lean and configuration | $CHECKS_RESULT |"
+            echo "| Docker build and offline checks | $DOCKER_RESULT |"
+          } >> "$GITHUB_STEP_SUMMARY"
+      - name: Require successful checks
+        if: ${{ needs.checks.result != 'success' || needs.docker.result != 'success' }}
+        run: exit 1
